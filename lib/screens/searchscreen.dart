@@ -130,10 +130,8 @@ class _SearchscreenState extends State<Searchscreen> {
                               ],
                             );
                           } else {
-                            return const Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [CircularProgressIndicator()],
-                            );
+                            return const Center(
+                                child: CircularProgressIndicator());
                           }
                         },
                       )

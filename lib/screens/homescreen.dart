@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:netflixclone/apiservices/api.dart';
 import 'package:netflixclone/models/nowplayingmodel.dart';
+import 'package:netflixclone/models/toprated.dart';
 import 'package:netflixclone/models/tvseiesmodel.dart';
 import 'package:netflixclone/models/upcomingmovie.dart';
 import 'package:netflixclone/screens/searchscreen.dart';
@@ -18,6 +19,7 @@ class _HomescreenState extends State<Homescreen> {
   late Future<Upcomingmoviemodel> upcomingmoviesfromapinew;
   late Future<Nowplayingmoviemodel> nowplayingmoviefromapinew;
   late Future<Tvseriesmodel> topratedseiresfromapinew;
+  late Future<Gettopratedmoviemodel> topratedmoviefromapinew;
   @override
   void initState() {
     super.initState();
@@ -25,6 +27,7 @@ class _HomescreenState extends State<Homescreen> {
     upcomingmoviesfromapinew = Apiservices().getupcomingmovie();
     nowplayingmoviefromapinew = Apiservices().nowplayingmovie();
     topratedseiresfromapinew = Apiservices().gettoprated();
+    topratedmoviefromapinew = Apiservices().getnewandhottoprated();
   }
 
   @override
@@ -93,6 +96,10 @@ class _HomescreenState extends State<Homescreen> {
                   child: Moviecard(
                       future: upcomingmoviesfromapinew,
                       headline: 'Upcoming Movies')),
+              SizedBox(
+                  height: 250,
+                  child: Moviecard(
+                      future: topratedmoviefromapinew, headline: 'Top 10')),
             ],
           ),
         ),

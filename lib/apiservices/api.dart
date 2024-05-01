@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:netflixclone/models/moviedetail.dart';
 import 'package:netflixclone/models/nowplayingmodel.dart';
+import 'package:netflixclone/models/populartvseriesmodel.dart';
 import 'package:netflixclone/models/recomentationmovie.dart';
 import 'package:netflixclone/models/searchmodel.dart';
 import 'package:netflixclone/models/toprated.dart';
@@ -109,7 +110,7 @@ class Apiservices {
     }
   }
 
-  Future<Gettopratedmoviemodel> getnewandhot() async {
+  Future<Gettopratedmoviemodel> getnewandhottoprated() async {
     endpoint = 'movie/top_rated';
     final url = '$baseurl$endpoint?api_key=08942f9f83c2133e308efff39e287fa5';
     final responce = await http.get(Uri.parse(url));
@@ -117,6 +118,19 @@ class Apiservices {
       print('success');
       print(responce.body);
       return Gettopratedmoviemodel.fromJson(jsonDecode(responce.body));
+    } else {
+      throw Exception('failed to load top rated tv series ');
+    }
+  }
+
+  Future<Populartvseriesmodel> getnewandhotpopular() async {
+    endpoint = 'tv/popular';
+    final url = '$baseurl$endpoint?api_key=08942f9f83c2133e308efff39e287fa5';
+    final responce = await http.get(Uri.parse(url));
+    if (responce.statusCode == 200) {
+      print('success');
+      print(responce.body);
+      return Populartvseriesmodel.fromJson(jsonDecode(responce.body));
     } else {
       throw Exception('failed to load top rated tv series ');
     }
