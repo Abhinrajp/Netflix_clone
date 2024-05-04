@@ -15,7 +15,7 @@ class Searchscreen extends StatefulWidget {
 }
 
 class _SearchscreenState extends State<Searchscreen> {
-  final debouncer = Debouncer(delay: Duration(milliseconds: 500));
+  final debouncer = Debouncer(delay: const Duration(milliseconds: 500));
   TextEditingController searchcontroller = TextEditingController();
   Apiservices apiservices = Apiservices();
   late Future<Getrecomentationmoviemodel> popularmovie;
@@ -90,6 +90,7 @@ class _SearchscreenState extends State<Searchscreen> {
                                   itemBuilder: (context, index) {
                                     return InkWell(
                                       onTap: () {
+                                        dismissKeyboard();
                                         Navigator.push(
                                             context,
                                             MaterialPageRoute(
@@ -136,7 +137,7 @@ class _SearchscreenState extends State<Searchscreen> {
                         },
                       )
                     : getsearchmoviemodel == null
-                        ? const SizedBox.shrink()
+                        ? const Text('No filim ')
                         : GridView.builder(
                             physics: const NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
@@ -150,6 +151,7 @@ class _SearchscreenState extends State<Searchscreen> {
                             itemBuilder: (context, index) {
                               return InkWell(
                                 onTap: () {
+                                  dismissKeyboard();
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -197,5 +199,9 @@ class _SearchscreenState extends State<Searchscreen> {
         ),
       ),
     );
+  }
+
+  void dismissKeyboard() {
+    FocusScope.of(context).unfocus();
   }
 }

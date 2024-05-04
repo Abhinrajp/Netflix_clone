@@ -1,9 +1,11 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:netflixclone/apiservices/api.dart';
 import 'package:netflixclone/models/moviedetail.dart';
 import 'package:netflixclone/models/recomentationmovie.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:apivideo_player/apivideo_player.dart';
 
 class Detailscreen extends StatefulWidget {
   final int movieid;
@@ -18,36 +20,40 @@ class _DetailscreenState extends State<Detailscreen> {
 
   late Future<Getmoviedetailmodel> moviedetail;
   late Future<Getrecomentationmoviemodel> recomented;
-  late YoutubePlayerController controller;
-  bool showTrailer = false;
+  late ApiVideoPlayerController controller;
+  bool showVideo = false;
 
   @override
   void initState() {
     super.initState();
-    controller = YoutubePlayerController(
-      initialVideoId: 'iLnmTe5Q2Qw',
-      flags: YoutubePlayerFlags(autoPlay: false, mute: false),
-    );
     fetchdata();
   }
 
-  fetchdata() async {
+  fetchdata() {
     moviedetail = apiservices.getmoviedetails(widget.movieid);
     recomented = apiservices.getMovieRecommendation(widget.movieid);
-    setState(() {});
-    // Wait for the controller to be initialized before calling playTrailer
-    Future.delayed(const Duration(seconds: 4), () {
-      setState(() {
-        showTrailer = true;
-      });
-      playTrailer();
-    });
-  }
+    moviedetail.then((movie) {
+      bool hasVideo = movie.video;
 
-  void playTrailer() async {
-    final movieDetail = await moviedetail;
-    final trailerUrl = movieDetail.video;
-    controller.load(trailerUrl.toString());
+      if (hasVideo) {
+        controller = ApiVideoPlayerController(
+          videoOptions: VideoOptions(videoId: movie.video.toString()),
+        );
+        print("the video ul isssssssssssssssssssss ${movie.video.toString()}");
+
+        controller.initialize();
+
+        Timer(const Duration(seconds: 1), () {
+          setState(() {
+            showVideo = true;
+          });
+
+          controller.play();
+        });
+
+        setState(() {});
+      }
+    });
   }
 
   @override
@@ -63,9 +69,10 @@ class _DetailscreenState extends State<Detailscreen> {
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           } else if (snapshot.data == null) {
-            return const Text('No data available');
+            return const Text('No Movies');
           } else {
             final movie = snapshot.data as Getmoviedetailmodel;
+
             String genresText =
                 movie.genres.map((genre) => genre.name).join(', ');
 
@@ -74,36 +81,35 @@ class _DetailscreenState extends State<Detailscreen> {
                 children: [
                   Stack(
                     children: [
-                      if (!showTrailer)
-                        Container(
-                          height: MediaQuery.of(context).size.height * 0.4,
-                          decoration: BoxDecoration(
-                              image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: NetworkImage(
-                                    'https://image.tmdb.org/t/p/w500${movie.posterPath}',
-                                  ))),
-                          child: SafeArea(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                IconButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  icon: const Icon(Icons.arrow_back_ios),
-                                ),
-                              ],
+                      Container(
+                        height: MediaQuery.of(context).size.height * 0.4,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: NetworkImage(
+                              'https://image.tmdb.org/t/p/w500${movie.posterPath}',
                             ),
                           ),
                         ),
-                      if (showTrailer)
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.4,
-                          child: YoutubePlayer(
+                        child: SafeArea(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                icon: const Icon(Icons.arrow_back_ios),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      if (showVideo)
+                        Positioned.fill(
+                          child: ApiVideoPlayer(
                             controller: controller,
-                            liveUIColor: Colors.amber,
                           ),
                         ),
                     ],
